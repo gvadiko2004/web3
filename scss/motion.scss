@@ -1,0 +1,62 @@
+// Content remains visible if JavaScript is unavailable or motion is reduced.
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready {
+    opacity: 0;
+    transform: translateY(32px);
+    transition:
+      opacity 0.75s ease,
+      transform 0.75s cubic-bezier(0.2, 0.65, 0.2, 1);
+  }
+  .reveal-ready.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  .intro__cards {
+    translate: var(--pointer-x, 0px) var(--pointer-y, 0px);
+    transition: translate 0.8s ease-out;
+  }
+  .hero__heading {
+    animation: hero-enter 0.9s 0.1s both cubic-bezier(0.2, 0.65, 0.2, 1);
+  }
+  .hero__bottom {
+    animation: hero-enter 0.9s 0.3s both cubic-bezier(0.2, 0.65, 0.2, 1);
+  }
+  .sprints.is-visible .sprints__bar {
+    animation: bar-enter 0.9s both cubic-bezier(0.2, 0.65, 0.2, 1);
+    animation-delay: calc(var(--i) * 45ms);
+  }
+  .project::after {
+    pointer-events: none;
+  }
+  @keyframes hero-enter {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes bar-enter {
+    from {
+      transform: scaleY(0.15);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-ready {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

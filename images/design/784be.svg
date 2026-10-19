@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ion:card-outline">
+<path id="Vector" d="M3.25 3H12.75C13.7165 3 14.5 3.7835 14.5 4.75V11.25C14.5 12.2165 13.7165 13 12.75 13H3.25C2.2835 13 1.5 12.2165 1.5 11.25V4.75C1.5 3.7835 2.2835 3 3.25 3Z" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
+<path id="Vector_2" d="M1.5 6H14.5M4 9.375H5.5V10H4V9.375Z" stroke-width="1.875" stroke-linejoin="round" stroke="white"/>
+</g>
+</svg>

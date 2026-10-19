@@ -1,0 +1,185 @@
+/* Full-width layout. Large-screen scale is bounded for readability. */
+@media (min-width: 1640px) {
+  .intro {
+    min-height: max(850px, calc(100svh - 40px));
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    padding: clamp(40px, 3vw, 80px) clamp(40px, 3vw, 100px) 0;
+  }
+  .header {
+    &__list {
+      gap: clamp(24px, 1.8vw, 64px);
+    }
+  }
+  .header {
+    &__link,
+    &__contact {
+      font-size: clamp(16px, 1vw, 24px);
+    }
+  }
+  .header {
+    &__contact span {
+      font-size: clamp(20px, 1.25vw, 30px);
+    }
+  }
+  .header {
+    &__contacts {
+      gap: clamp(20px, 1.5vw, 48px);
+    }
+  }
+  .header {
+    &__logo span:first-child {
+      font-size: clamp(48px, 3vw, 76px);
+    }
+  }
+  .header {
+    &__logo span:last-child {
+      font-size: clamp(20px, 1.25vw, 32px);
+    }
+  }
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(110px, 7vw, 220px) clamp(40px, 3vw, 100px)
+      clamp(40px, 3vw, 80px);
+  }
+  .hero {
+    &__title > span:first-child {
+      font-size: clamp(80px, 5.2cqw, 180px);
+    }
+  }
+  .hero {
+    &__title > span:last-child {
+      font-size: clamp(130px, 8.5cqw, 294px);
+      margin-top: clamp(12px, 1vw, 28px);
+    }
+  }
+  .hero {
+    &__cta {
+      font-size: clamp(20px, 1.2vw, 28px);
+      padding: clamp(20px, 1.4vw, 34px) clamp(28px, 2vw, 48px);
+      margin-top: clamp(30px, 2.5vw, 60px);
+    }
+  }
+  .hero {
+    &__bottom {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 54%);
+      gap: clamp(40px, 4vw, 120px);
+      margin-top: auto;
+      padding-top: clamp(124px, 8vw, 240px);
+    }
+  }
+  .hero {
+    &__about {
+      max-width: clamp(270px, 19vw, 540px);
+    }
+  }
+  .hero {
+    &__about p,
+    &__about-link {
+      font-size: clamp(20px, 1.25vw, 30px);
+    }
+  }
+  .hero {
+    &__stats {
+      gap: clamp(16px, 1.2vw, 32px);
+    }
+  }
+  .stat {
+    min-height: clamp(190px, 12vw, 320px);
+    padding: clamp(24px, 1.8vw, 48px);
+  }
+  .stat {
+    &__title {
+      font-size: clamp(30px, 2vw, 48px);
+    }
+  }
+  .stat {
+    &__number {
+      font-size: clamp(28px, 1.85vw, 44px);
+    }
+  }
+  .stat {
+    &__text {
+      font-size: clamp(16px, 1.05vw, 24px);
+      max-width: 24ch;
+      margin-top: clamp(14px, 1vw, 24px);
+    }
+  }
+  .stat {
+    &__stars {
+      margin-top: 16px;
+    }
+  }
+  .intro {
+    &__cards {
+      top: auto;
+      bottom: -12%;
+      width: clamp(1000px, 66vw, 2200px);
+    }
+  }
+  .intro {
+    &__glow {
+      top: auto;
+      bottom: -100px;
+      left: calc(50% - 384px);
+      transform: scale(1.5);
+    }
+  }
+  .intro {
+    &__orbit {
+      transform: rotate(45deg) scale(1.35);
+      transform-origin: 30% 30%;
+    }
+  }
+  .intro {
+    &__spark {
+      top: auto;
+      bottom: clamp(200px, 12vw, 330px);
+      left: 24px;
+    }
+  }
+  .intro {
+    &__shade {
+      inset: 45% 0 0;
+    }
+  }
+}
+/* Keep short mobile widths readable inside the fixed 20px page gutters. */
+@media (max-width: 360px) {
+  .hero {
+    padding-inline: 16px;
+  }
+  .hero {
+    &__title > span:first-child {
+      font-size: max(18px, 5.5cqw);
+    }
+  }
+  .hero {
+    &__title > span:last-child {
+      font-size: max(28px, 9cqw);
+    }
+  }
+  .hero {
+    &__about {
+      flex-direction: column;
+    }
+  }
+  .hero {
+    &__about-link {
+      align-self: flex-start;
+    }
+  }
+  .stat {
+    padding: 16px;
+    gap: 10px;
+  }
+  .stat {
+    &__title {
+      font-size: 22px;
+    }
+  }
+}
