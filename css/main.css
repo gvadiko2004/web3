@@ -3016,4 +3016,13 @@ html.lenis body {
     margin-bottom: 20px;
     margin-top: 20px;
   }
+
+  .team {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .back-top--visible {
+    right: 36px;
+  }
 }
