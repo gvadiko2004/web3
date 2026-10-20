@@ -457,12 +457,7 @@ button {
     letter-spacing: 0;
   }
 
-  .header__link::after {
-    content: "↗";
-    color: #77797b;
-    font: 400 18px/1 var(--font-body);
-    transition: color 0.2s, transform 0.2s;
-  }
+  
 
   .header__link:hover,
   .header__link:focus-visible,
