@@ -3011,4 +3011,9 @@ html.lenis body {
     position: relative;
     top: 12vh;
   }
+
+  .partners {
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
 }
