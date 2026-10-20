@@ -2543,3 +2543,361 @@ em {
     width: 100%;
   }
 }
+/* =========================================================
+   WEBISEN MOTION UPGRADE
+   Дополнение к существующему CSS — старые стили не удалять
+   ========================================================= */
+
+/* ---------- Полноэкранное меню ---------- */
+
+html.webisen-menu-open {
+  overflow: hidden;
+}
+
+.header__menu-close {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  /*
+    JS переносит существующий .header__nav из .intro в body.
+    Это необходимо: overflow: clip у .intro иначе обрежет
+    полноэкранное меню.
+  */
+  .header__nav,
+  .header__nav.header__nav--open {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+
+    margin: 0;
+    padding:
+      calc(76px + env(safe-area-inset-top))
+      clamp(22px, 5vw, 64px)
+      calc(25px + env(safe-area-inset-bottom));
+
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+
+    background:
+      radial-gradient(
+        circle at 88% 10%,
+        rgba(229, 246, 95, 0.12),
+        transparent 36%
+      ),
+      linear-gradient(145deg, #151619 0%, #0d0e10 75%);
+
+    transform-origin: center top;
+  }
+
+  .header__nav {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-22px);
+
+    transition:
+      opacity 0.35s ease,
+      transform 0.48s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s linear 0.48s;
+  }
+
+  .header__nav.header__nav--open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+
+    transition:
+      opacity 0.35s ease,
+      transform 0.48s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s;
+  }
+
+  /* Маленькая верхняя подпись — без изменений HTML */
+  .header__nav::before {
+    content: "WEBISEN / НАВІГАЦІЯ";
+    position: absolute;
+    top: calc(32px + env(safe-area-inset-top));
+    left: clamp(22px, 5vw, 64px);
+
+    color: var(--color-accent);
+    font: 500 13px/1 var(--font-pixel);
+    letter-spacing: 0.11em;
+    pointer-events: none;
+  }
+
+  .header__menu-close {
+    position: absolute;
+    top: calc(20px + env(safe-area-inset-top));
+    right: clamp(22px, 5vw, 64px);
+
+    display: grid;
+    place-items: center;
+
+    width: 44px;
+    height: 44px;
+    padding: 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    background: #202125;
+
+    transition:
+      border-color 0.25s,
+      background 0.25s,
+      transform 0.35s;
+  }
+
+  .header__menu-close:hover {
+    border-color: var(--color-accent);
+    background: #2a2d21;
+    transform: rotate(90deg);
+  }
+
+  .header__menu-close span {
+    position: absolute;
+    width: 17px;
+    height: 2px;
+    background: var(--color-accent);
+  }
+
+  .header__menu-close span:first-child {
+    transform: rotate(45deg);
+  }
+
+  .header__menu-close span:last-child {
+    transform: rotate(-45deg);
+  }
+
+  .header__list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 0;
+
+    width: min(100%, 760px);
+    margin: 0 auto;
+    counter-reset: menu-item;
+  }
+
+  .header__list > li:not(.header__menu-contact) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  }
+
+  .header__list > li:first-child {
+    border-top: 1px solid rgba(255, 255, 255, 0.13);
+  }
+
+  .header__link {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 13px;
+
+    padding-block: clamp(12px, 2.2vh, 22px);
+    font-size: clamp(23px, 4vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -0.04em;
+  }
+
+  /* Убираем стрелки у пунктов, даже если старый CSS их создаёт */
+  .header__link::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Контакты визуально прижаты к нижней части меню */
+  .header__menu-contact {
+    margin-top: auto;
+    padding-top: clamp(25px, 5vh, 65px);
+  }
+
+  /* Убираем стрелку, уже присутствующую внутри номера в HTML */
+  .header__menu-phone span {
+    display: none;
+  }
+
+  /* Небольшой каскад появления строк при открытии */
+  .header__list > li:not(.header__menu-contact) {
+    opacity: 0;
+    transform: translateY(12px);
+
+    transition:
+      opacity 0.45s ease,
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .header__nav--open .header__list > li:not(.header__menu-contact) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .header__nav--open .header__list > li:nth-child(1) {
+    transition-delay: 0.04s;
+  }
+
+  .header__nav--open .header__list > li:nth-child(2) {
+    transition-delay: 0.07s;
+  }
+
+  .header__nav--open .header__list > li:nth-child(3) {
+    transition-delay: 0.1s;
+  }
+
+  .header__nav--open .header__list > li:nth-child(4) {
+    transition-delay: 0.13s;
+  }
+
+  .header__nav--open .header__list > li:nth-child(5) {
+    transition-delay: 0.16s;
+  }
+
+  .header__nav--open .header__list > li:nth-child(6) {
+    transition-delay: 0.19s;
+  }
+}
+
+@media (max-width: 600px) {
+  .header__nav,
+  .header__nav.header__nav--open {
+    padding-inline: 22px;
+  }
+
+  .header__nav::before {
+    left: 22px;
+  }
+
+  .header__menu-close {
+    right: 22px;
+  }
+
+  .header__link {
+    font-size: clamp(21px, 5.8vw, 31px);
+  }
+}
+
+@media (max-width: 360px) {
+  .header__nav,
+  .header__nav.header__nav--open {
+    padding-inline: 18px;
+  }
+
+  .header__nav::before {
+    left: 18px;
+  }
+
+  .header__menu-close {
+    right: 18px;
+  }
+
+  .header__link {
+    font-size: 20px;
+  }
+}
+
+/* ---------- Karaoke-заголовки ---------- */
+
+/*
+  Классы словам добавляет JS. Исходный текст и вложенные
+  цветные span/em остаются в тех же заголовках.
+*/
+.webisen-karaoke .karaoke-word {
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.webisen-karaoke .karaoke-ink {
+  display: inline-block;
+  opacity: calc(0.28 + var(--karaoke-progress, 0) * 0.72);
+  transform:
+    translateY(calc((1 - var(--karaoke-progress, 0)) * 0.13em));
+
+  will-change: opacity, transform;
+}
+
+/* У заголовка команды белые буквы поверх фото;
+   сильнее приглушать их не нужно */
+.team__title.webisen-karaoke .karaoke-ink {
+  opacity: calc(0.45 + var(--karaoke-progress, 0) * 0.55);
+}
+
+/* ---------- Параллакс ---------- */
+
+/*
+  Используем свойство translate, а не transform:
+  существующие transform у декоративных картинок не перезаписываются.
+*/
+.webisen-parallax {
+  translate: 0 var(--webisen-depth, 0px);
+  will-change: translate;
+}
+
+.team__photo.webisen-parallax {
+  scale: 1.07;
+}
+
+/* ---------- Дополнительная полировка ---------- */
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .panel {
+    transition:
+      border-color 0.35s,
+      box-shadow 0.35s;
+  }
+
+  .panel:hover {
+    border-color: rgba(229, 246, 95, 0.17);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.2);
+  }
+
+  .project__caption {
+    transition: color 0.25s;
+  }
+
+  .project:hover .project__caption {
+    color: var(--color-accent);
+  }
+}
+
+/* Lenis управляет плавностью сам: CSS smooth с ним не смешиваем */
+html.lenis {
+  scroll-behavior: auto;
+}
+
+html.lenis body {
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__nav,
+  .header__nav.header__nav--open,
+  .header__list > li:not(.header__menu-contact),
+  .header__menu-close,
+  .webisen-karaoke .karaoke-ink,
+  .webisen-parallax {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    translate: none !important;
+  }
+
+  .header__list > li:not(.header__menu-contact),
+  .webisen-karaoke .karaoke-ink {
+    opacity: 1 !important;
+  }
+}

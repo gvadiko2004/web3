@@ -1,317 +1,602 @@
+/* =========================================================
+   WEBISEN MOTION UPGRADE
+   Дополнение к существующему main.js — старый код не удалять
+   ========================================================= */
+
 (() => {
   "use strict";
 
-  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const motionPreference = matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
 
-  /* =========================
-     Мобильное меню
-     ========================= */
-
+  const mobileWidth = matchMedia("(max-width: 1100px)");
   const menu = document.querySelector(".header__nav");
   const toggle = document.querySelector(".header__toggle");
+  const dialog = document.querySelector(".case-dialog");
 
-  const setMenu = (open) => {
-    menu.classList.toggle("header__nav--open", open);
+  if (!menu || !toggle) return;
 
-    toggle.setAttribute("aria-expanded", String(open));
-    toggle.setAttribute("aria-label", open ? "Закрити меню" : "Відкрити меню");
-  };
+  let lenis = null;
 
-  toggle.addEventListener("click", () => {
-    const isOpen = toggle.getAttribute("aria-expanded") === "true";
-    setMenu(!isOpen);
-  });
+  /* ---------- Полноэкранное меню ---------- */
 
-  // Закрываем меню после выбора пункта навигации.
-  // Телефон и почта работают как обычные ссылки.
+  /*
+    Ставим метку на исходное место nav.
+    На телефоне переносим ТОТ ЖЕ nav в body.
+    На десктопе возвращаем точно на прежнее место.
+  */
+  const menuMarker = document.createComment("WEBISEN menu position");
+  menu.parentNode.insertBefore(menuMarker, menu);
+
+  /*
+    Дополнительная кнопка закрытия создаётся JS.
+    В исходном HTML ничего менять не нужно.
+  */
+  const closeButton = document.createElement("button");
+
+  closeButton.type = "button";
+  closeButton.className = "header__menu-close";
+  closeButton.setAttribute("aria-label", "Закрити меню");
+
+  closeButton.innerHTML =
+    '<span aria-hidden="true"></span>' +
+    '<span aria-hidden="true"></span>';
+
+  menu.prepend(closeButton);
+
+  /*
+    Когда меню находится вне .header, старый обработчик
+    document.click воспринимал бы любое нажатие внутри него
+    как клик «снаружи». Не даём событию дойти до document.
+    Старый обработчик ссылок на самом menu продолжает работать.
+  */
   menu.addEventListener("click", (event) => {
-    if (event.target.closest("a")) {
-      setMenu(false);
+    event.stopPropagation();
+
+    if (event.target === menu) {
+      toggle.click();
     }
   });
 
-  // Закрываем меню при клике вне шапки.
-  document.addEventListener("click", (event) => {
-    if (!event.target.closest(".header")) {
-      setMenu(false);
+  closeButton.addEventListener("click", () => {
+    if (toggle.getAttribute("aria-expanded") === "true") {
+      toggle.click();
+      toggle.focus({ preventScroll: true });
     }
   });
 
-  // Закрываем меню по Escape и возвращаем фокус на кнопку.
-  document.addEventListener("keydown", (event) => {
-    if (
-      event.key === "Escape" &&
-      toggle.getAttribute("aria-expanded") === "true"
-    ) {
-      setMenu(false);
-      toggle.focus();
+  function syncMenuPosition() {
+    if (toggle.getAttribute("aria-expanded") === "true") {
+      toggle.click();
     }
-  });
 
-  // При переходе к десктопной ширине сбрасываем состояние меню.
-  matchMedia("(min-width: 1101px)").addEventListener("change", (event) => {
-    if (event.matches) {
-      setMenu(false);
+    if (mobileWidth.matches) {
+      document.body.append(menu);
+    } else {
+      menuMarker.parentNode.insertBefore(menu, menuMarker.nextSibling);
     }
-  });
 
-  /* =========================
-     Появление секций при прокрутке
-     ========================= */
+    updateMenuState();
+  }
 
-  if ("IntersectionObserver" in window && !reducedMotion.matches) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0, rootMargin: "0px 0px -40px 0px" },
+  function updateMenuState() {
+    const open =
+      mobileWidth.matches &&
+      toggle.getAttribute("aria-expanded") === "true";
+
+    document.documentElement.classList.toggle(
+      "webisen-menu-open",
+      open,
     );
 
-    document.querySelectorAll("[data-reveal]").forEach((element) => {
-      element.classList.add("reveal-ready");
-      observer.observe(element);
+    /*
+      Меню можно прокручивать внутри себя, но страницу под ним —
+      нельзя. После закрытия восстанавливаем доступность страницы.
+    */
+    const wrapper = document.querySelector(".wrapper");
+
+    if (wrapper) {
+      wrapper.inert = open;
+    }
+
+    menu.inert = mobileWidth.matches && !open;
+
+    if (open) {
+      closeButton.focus({ preventScroll: true });
+    }
+
+    updateLenisState();
+  }
+
+  syncMenuPosition();
+  mobileWidth.addEventListener("change", syncMenuPosition);
+
+  const menuStateObserver = new MutationObserver(updateMenuState);
+
+  menuStateObserver.observe(toggle, {
+    attributes: true,
+    attributeFilter: ["aria-expanded"],
+  });
+
+  /* ---------- Lenis: необязательное улучшение прокрутки ---------- */
+
+  function updateLenisState() {
+    if (!lenis) return;
+
+    const menuOpen =
+      toggle.getAttribute("aria-expanded") === "true";
+
+    const dialogOpen = Boolean(dialog?.open);
+
+    if (menuOpen || dialogOpen) {
+      lenis.stop();
+    } else {
+      lenis.start();
+    }
+  }
+
+  /*
+    Загружаем зафиксированную версию независимо от HTML.
+    При ошибке сети ничего не ломается: остаётся обычный scroll.
+  */
+  if (!motionPreference.matches && !window.Lenis) {
+    const script = document.createElement("script");
+
+    script.src =
+      "https://unpkg.com/lenis@1.3.27/dist/lenis.min.js";
+
+    script.async = true;
+
+    script.onload = initializeLenis;
+    script.onerror = () => {
+      console.info(
+        "Lenis не загрузился; используется обычная прокрутка.",
+      );
+    };
+
+    document.head.append(script);
+  } else if (!motionPreference.matches && window.Lenis) {
+    initializeLenis();
+  }
+
+  function initializeLenis() {
+    if (lenis || !window.Lenis || motionPreference.matches) return;
+
+    lenis = new window.Lenis({
+      autoRaf: true,
+      anchors: true,
+      duration: 1.15,
+      smoothWheel: true,
+
+      /*
+        Не вмешиваемся в прокрутку самого меню, диалога
+        и горизонтальную галерею портретов.
+      */
+      prevent: (node) =>
+        Boolean(
+          node.closest(
+            ".header__nav, .case-dialog, .review__people",
+          ),
+        ),
     });
 
-    reducedMotion.addEventListener("change", (event) => {
-      if (event.matches) {
-        observer.disconnect();
+    updateLenisState();
 
-        document.querySelectorAll(".reveal-ready").forEach((element) => {
-          element.classList.add("is-visible");
+    /*
+      В существующем коде форма вызывает scrollIntoView().
+      Не перехватываем и не переписываем его: он остаётся рабочим.
+    */
+  }
+
+  if (dialog) {
+    const dialogObserver = new MutationObserver(updateLenisState);
+
+    dialogObserver.observe(dialog, {
+      attributes: true,
+      attributeFilter: ["open"],
+    });
+  }
+
+  /*
+    В меню останавливаем всплытие клика до document, поэтому
+    Lenis не увидит якорную ссылку сам. Обрабатываем только
+    внутренние #ссылки; tel: и mailto: не трогаем.
+  */
+  menu.addEventListener("click", (event) => {
+    const link = event.target.closest('a[href^="#"]');
+
+    if (!link) return;
+
+    const hash = link.getAttribute("href");
+    const target = document.getElementById(hash.slice(1));
+
+    if (!target) return;
+
+    event.preventDefault();
+
+    /*
+      Старый обработчик menu уже убрал класс открытого меню.
+      Даём DOM один кадр на закрытие и затем прокручиваем.
+    */
+    requestAnimationFrame(() => {
+      if (location.hash !== hash) {
+        history.pushState(null, "", hash);
+      }
+
+      if (lenis && !motionPreference.matches) {
+        lenis.scrollTo(target, {
+          offset: -24,
+          duration: 1.1,
+        });
+      } else {
+        target.scrollIntoView({
+          behavior: motionPreference.matches ? "instant" : "smooth",
         });
       }
     });
-  }
+  });
 
-  /* =========================
-     Движение иллюстрации в hero
-     ========================= */
+  /* ---------- Karaoke-анимация заголовков ---------- */
 
-  const intro = document.querySelector(".intro");
+  const karaokeSelector = [
+    ".mission h2",
+    ".section-title",
+    ".team__title",
+    ".custom__copy h3",
+  ].join(", ");
 
-  if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
-    intro.addEventListener(
-      "pointermove",
-      (event) => {
-        if (reducedMotion.matches) return;
+  const karaokeHeadings = [
+    ...document.querySelectorAll(karaokeSelector),
+  ];
 
-        const rect = intro.getBoundingClientRect();
-
-        intro.style.setProperty(
-          "--pointer-x",
-          `${((event.clientX - rect.left) / rect.width - 0.5) * 16}px`,
-        );
-
-        intro.style.setProperty(
-          "--pointer-y",
-          `${((event.clientY - rect.top) / rect.height - 0.5) * 10}px`,
-        );
-      },
-      { passive: true },
+  /*
+    Не используем innerHTML для пользовательского текста.
+    Оборачиваем только текстовые узлы: вложенные span и em,
+    отвечающие за исходные цвета, сохраняются.
+  */
+  function wrapWords(root) {
+    const walker = document.createTreeWalker(
+      root,
+      NodeFilter.SHOW_TEXT,
     );
 
-    intro.addEventListener("pointerleave", () => {
-      intro.style.setProperty("--pointer-x", "0px");
-      intro.style.setProperty("--pointer-y", "0px");
+    const textNodes = [];
+
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+
+      if (node.parentElement.closest(".karaoke-word")) {
+        continue;
+      }
+
+      if (node.textContent.trim()) {
+        textNodes.push(node);
+      }
+    }
+
+    textNodes.forEach((textNode) => {
+      const fragment = document.createDocumentFragment();
+
+      const pieces = textNode.textContent.split(/(\s+)/);
+
+      pieces.forEach((piece) => {
+        if (!piece) return;
+
+        if (/^\s+$/.test(piece)) {
+          fragment.append(document.createTextNode(piece));
+          return;
+        }
+
+        const word = document.createElement("span");
+        const ink = document.createElement("span");
+
+        word.className = "karaoke-word";
+        ink.className = "karaoke-ink";
+
+        ink.textContent = piece;
+        word.append(ink);
+        fragment.append(word);
+      });
+
+      textNode.replaceWith(fragment);
     });
+
+    root.classList.add("webisen-karaoke");
   }
 
-  /* =========================
-     Аккордеон услуг
-     ========================= */
-
-  const services = [...document.querySelectorAll(".service")];
-
-  function setService(service, open) {
-    service.classList.toggle("service--open", open);
-
-    service
-      .querySelector(".service__toggle")
-      .setAttribute("aria-expanded", String(open));
-
-    service.querySelector(".service__body").inert = !open;
+  if (!motionPreference.matches) {
+    karaokeHeadings.forEach(wrapWords);
   }
 
-  services.forEach((service) => {
-    service.querySelector(".service__toggle").addEventListener("click", () => {
-      const open = !service.classList.contains("service--open");
+  /* ---------- Параллакс без конфликта с существующим pointermove ---------- */
 
-      services.forEach((item) => {
-        setService(item, item === service && open);
+  /*
+    Не трогаем .intro__cards: в старом JS она уже двигается
+    от указателя мыши. Для новых эффектов берём другие слои.
+  */
+  const parallaxItems = [
+    {
+      element: document.querySelector(".intro__glow"),
+      strength: 15,
+    },
+    {
+      element: document.querySelector(".team__photo"),
+      strength: 24,
+    },
+    {
+      element: document.querySelector(
+        ".portfolio__art img:first-child",
+      ),
+      strength: 26,
+    },
+    {
+      element: document.querySelector(
+        ".portfolio__art img:last-child",
+      ),
+      strength: -18,
+    },
+    {
+      element: document.querySelector(".custom__cards"),
+      strength: 18,
+    },
+  ].filter((item) => item.element);
+
+  parallaxItems.forEach(({ element }) => {
+    element.classList.add("webisen-parallax");
+  });
+
+  let ticking = false;
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function updateMotion() {
+    ticking = false;
+
+    if (motionPreference.matches) return;
+
+    const viewportHeight = window.innerHeight;
+
+    karaokeHeadings.forEach((heading) => {
+      const rect = heading.getBoundingClientRect();
+
+      /*
+        Эффект начинается, когда заголовок входит снизу,
+        и завершается ближе к верхней половине экрана.
+      */
+      const progress = clamp(
+        (viewportHeight * 0.88 - rect.top) /
+          (viewportHeight * 0.57),
+        0,
+        1,
+      );
+
+      const words = heading.querySelectorAll(".karaoke-ink");
+      const total = words.length;
+
+      words.forEach((word, index) => {
+        const wordProgress = clamp(
+          progress * (total + 1) - index,
+          0,
+          1,
+        );
+
+        word.style.setProperty(
+          "--karaoke-progress",
+          wordProgress.toFixed(3),
+        );
       });
     });
-  });
 
-  /* =========================
-     Просмотр кейсов
-     ========================= */
+    const allowParallax = matchMedia(
+      "(min-width: 701px) and (pointer: fine)",
+    ).matches;
 
-  const dialog = document.querySelector(".case-dialog");
-  let previousOverflow = "";
+    parallaxItems.forEach(({ element, strength }) => {
+      if (!allowParallax) {
+        element.style.removeProperty("--webisen-depth");
+        return;
+      }
 
-  document.querySelectorAll("[data-case]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const source = button.querySelector(".project__visual img");
-
-      dialog.querySelector("h2").textContent = button.querySelector(
-        ".project__caption span",
-      ).textContent;
-
-      const preview = dialog.querySelector(".case-dialog__image");
-      preview.src = source.src;
-      preview.alt = source.alt;
-
-      previousOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-
-      dialog.showModal();
-    });
-  });
-
-  dialog
-    .querySelector(".case-dialog__close")
-    .addEventListener("click", () => dialog.close());
-
-  dialog.addEventListener("close", () => {
-    document.body.style.overflow = previousOverflow;
-  });
-
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) {
-      const rect = dialog.getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
 
       if (
-        event.clientX < rect.left ||
-        event.clientX > rect.right ||
-        event.clientY < rect.top ||
-        event.clientY > rect.bottom
+        rect.bottom < -200 ||
+        rect.top > viewportHeight + 200
       ) {
-        dialog.close();
+        return;
+      }
+
+      const center = rect.top + rect.height / 2;
+
+      const distance = clamp(
+        (viewportHeight / 2 - center) /
+          (viewportHeight + rect.height),
+        -0.5,
+        0.5,
+      );
+
+      element.style.setProperty(
+        "--webisen-depth",
+        `${(distance * strength * 2).toFixed(1)}px`,
+      );
+    });
+  }
+
+  function requestMotionUpdate() {
+    if (ticking) return;
+
+    ticking = true;
+    requestAnimationFrame(updateMotion);
+  }
+
+  window.addEventListener("scroll", requestMotionUpdate, {
+    passive: true,
+  });
+
+  window.addEventListener("resize", requestMotionUpdate, {
+    passive: true,
+  });
+
+  motionPreference.addEventListener("change", () => {
+    if (motionPreference.matches && lenis) {
+      lenis.destroy();
+      lenis = null;
+    }
+
+    requestMotionUpdate();
+  });
+
+  requestMotionUpdate();
+
+  /* ---------- Подсчёт показателей и цен ---------- */
+
+  /*
+    Берём только показатели, сроки и цены.
+    Номера телефонов, годы в кейсах и нумерацию интерфейса
+    не анимируем: они должны оставаться стабильными.
+  */
+  const numberContainers = document.querySelectorAll(
+    [
+      ".stat__title",
+      ".hero__about p",
+      ".metrics strong",
+      ".partners-card strong",
+      ".sprints__heading > span",
+      ".sprints__bar--active b",
+      ".price-card__tags li",
+      ".price-card__action strong",
+      ".review__content blockquote",
+      ".impact__card strong",
+    ].join(", "),
+  );
+
+  const numberElements = [];
+
+  numberContainers.forEach((container) => {
+    const walker = document.createTreeWalker(
+      container,
+      NodeFilter.SHOW_TEXT,
+    );
+
+    const textNodes = [];
+
+    while (walker.nextNode()) {
+      if (/\d/.test(walker.currentNode.textContent)) {
+        textNodes.push(walker.currentNode);
       }
     }
+
+    textNodes.forEach((textNode) => {
+      const fragment = document.createDocumentFragment();
+
+      const pieces = textNode.textContent.split(
+        /(\d+(?:[ \u00a0]\d{3})*(?:[.,]\d+)?)/g,
+      );
+
+      pieces.forEach((piece) => {
+        if (!piece) return;
+
+        if (!/^\d/.test(piece)) {
+          fragment.append(document.createTextNode(piece));
+          return;
+        }
+
+        const number = document.createElement("span");
+
+        number.className = "webisen-count";
+        number.dataset.original = piece;
+        number.textContent = piece;
+
+        fragment.append(number);
+        numberElements.push(number);
+      });
+
+      textNode.replaceWith(fragment);
+    });
   });
 
-  dialog.querySelector("a").addEventListener("click", () => dialog.close());
+  function animateNumber(element) {
+    const original = element.dataset.original;
+    const decimalSeparator = original.includes(",")
+      ? ","
+      : original.includes(".")
+        ? "."
+        : null;
 
-  /* =========================
-     Прокрутка портретов в отзывах
-     ========================= */
+    const decimals = decimalSeparator
+      ? original.split(decimalSeparator)[1].length
+      : 0;
 
-  const portraits = document.querySelector(".review__people");
-  const prev = document.querySelector(".review__previous");
-  const next = document.querySelector(".review__next");
+    const thousandSeparator =
+      /\d([ \u00a0])\d{3}/.exec(original)?.[1] || "";
 
-  const updatePortraits = () => {
-    prev.disabled = portraits.scrollLeft < 2;
+    const target = Number(
+      original.replace(/[ \u00a0]/g, "").replace(",", "."),
+    );
 
-    next.disabled =
-      portraits.scrollLeft + portraits.clientWidth >= portraits.scrollWidth - 2;
-  };
+    if (!Number.isFinite(target) || motionPreference.matches) {
+      element.textContent = original;
+      return;
+    }
 
-  const movePortraits = (direction) => {
-    portraits.scrollBy({
-      left:
-        direction *
-        (portraits.firstElementChild.getBoundingClientRect().width + 20),
-      behavior: reducedMotion.matches ? "instant" : "smooth",
-    });
-  };
+    const duration = 1100;
+    const start = performance.now();
 
-  prev.addEventListener("click", () => movePortraits(-1));
-  next.addEventListener("click", () => movePortraits(1));
+    function format(value) {
+      const fixed = value.toFixed(decimals);
+      let [whole, fraction] = fixed.split(".");
 
-  portraits.addEventListener("scroll", updatePortraits, { passive: true });
-
-  new ResizeObserver(updatePortraits).observe(portraits);
-  updatePortraits();
-
-  /* =========================
-     Подстановка услуги в форму
-     ========================= */
-
-  const contact = document.querySelector("#contact-form");
-
-  document.querySelectorAll("[data-service]").forEach((link) => {
-    link.addEventListener("click", () => {
-      const message = contact.elements.message;
-
-      if (!message.value.trim()) {
-        message.value =
-          `I'm interested in ${link.dataset.service.toLowerCase()}.\n\n` +
-          "Project details: ";
+      if (thousandSeparator) {
+        whole = whole.replace(
+          /\B(?=(\d{3})+(?!\d))/g,
+          thousandSeparator,
+        );
       }
-    });
-  });
 
-  /* =========================
-     Короткая форма индивидуального проекта
-     ========================= */
-
-  document.querySelector("#custom-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const fields = new FormData(event.currentTarget);
-
-    if (!contact.elements.email.value) {
-      contact.elements.email.value = fields.get("email");
+      return fraction === undefined
+        ? whole
+        : whole + decimalSeparator + fraction;
     }
 
-    if (!contact.elements.message.value.trim()) {
-      contact.elements.message.value =
-        `Hello! My name is ${fields.get("name")}. ` +
-        "I'd like to discuss a custom project.\n\nProject details: ";
+    function frame(now) {
+      const progress = clamp((now - start) / duration, 0, 1);
+      const eased = 1 - Math.pow(1 - progress, 4);
+
+      element.textContent = format(target * eased);
+
+      if (progress < 1 && !motionPreference.matches) {
+        requestAnimationFrame(frame);
+      } else {
+        element.textContent = original;
+      }
     }
 
-    document.querySelector("#contact").scrollIntoView({
-      behavior: reducedMotion.matches ? "instant" : "smooth",
+    requestAnimationFrame(frame);
+  }
+
+  if (
+    "IntersectionObserver" in window &&
+    !motionPreference.matches
+  ) {
+    const countObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          animateNumber(entry.target);
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        threshold: 0.3,
+      },
+    );
+
+    numberElements.forEach((element) => {
+      countObserver.observe(element);
     });
-
-    contact.elements.message.focus({ preventScroll: true });
-  });
-
-  /* =========================
-     Отправка через почтовую программу
-     ========================= */
-
-  contact.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const data = new FormData(contact);
-
-    const body =
-      `Email: ${data.get("email")}\n` +
-      `Phone: ${data.get("phone") || "Not provided"}\n` +
-      `Budget: ${data.get("budget")}\n\n` +
-      data.get("message");
-
-    const mailto =
-      "mailto:webisen.office@gmail.com" +
-      `?subject=${encodeURIComponent("New WEBISEN project inquiry")}` +
-      `&body=${encodeURIComponent(body)}`;
-
-    const status = contact.querySelector(".contact__feedback");
-
-    status.textContent =
-      "Лист підготовлено. Завершіть надсилання у своїй поштовій програмі. " +
-      "Якщо вона не відкрилася, напишіть на webisen.office@gmail.com.";
-
-    window.location.href = mailto;
-  });
-
-  /* =========================
-     Кнопка «наверх»
-     ========================= */
-
-  const topLink = document.querySelector(".back-top");
-
-  const topObserver = new IntersectionObserver((entries) => {
-    topLink.classList.toggle("back-top--visible", !entries[0].isIntersecting);
-  });
-
-  topObserver.observe(intro);
+  }
 })();
