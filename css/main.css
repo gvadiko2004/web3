@@ -1070,9 +1070,7 @@ em {
   letter-spacing: -0.035em;
   overflow-wrap: anywhere;
 }
-.section-title span {
-  color: var(--color-accent);
-}
+
 
 .section-tag {
   display: inline-flex;
