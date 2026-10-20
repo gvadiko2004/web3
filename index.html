@@ -7,10 +7,43 @@
       name="description"
       content="WEBISEN — сайти, орієнтовані на конверсію. Від дизайну до запуску за 2–4 тижні."
     />
-    <title>WEBISEN — Сайти, що приносять прибуток</title>
+    <title>WS — Розробка сайту</title>
     <link rel="stylesheet" href="./css/fonts.css" />
     <link rel="stylesheet" href="./css/main.css" />
     <script src="./js/main.js" defer></script>
+
+    <link rel="shortcut icon" href="./images/logo.svg" type="image/x-icon" />
+
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const startedAt = performance.now();
+
+        root.classList.add("has-preloader");
+
+        const fallback = setTimeout(hidePreloader, 4000);
+
+        function hidePreloader() {
+          clearTimeout(fallback);
+          root.classList.remove("has-preloader");
+        }
+
+        window.addEventListener(
+          "load",
+          () => {
+            const reduceMotion = matchMedia(
+              "(prefers-reduced-motion: reduce)",
+            ).matches;
+            const remaining = reduceMotion
+              ? 0
+              : Math.max(0, 650 - (performance.now() - startedAt));
+
+            setTimeout(hidePreloader, remaining);
+          },
+          { once: true },
+        );
+      })();
+    </script>
   </head>
   <body>
     <!-- <a class="skip-link" href="#main">Перейти до вмісту</a> -->
@@ -37,51 +70,76 @@
             >
               <ul class="header__list">
                 <li>
-                  <a class="header__link" href="#about"> Про нас </a>
+                  <a class="header__link" href="#about">Про нас</a>
                 </li>
                 <li>
-                  <a class="header__link header__link--accent" href="#team">
+                  <a class="header__link" href="#team">
                     Команда
                   </a>
                 </li>
                 <li>
-                  <a class="header__link" href="#reviews"> Відгуки </a>
+                  <a class="header__link" href="#reviews">Відгуки</a>
                 </li>
                 <li>
-                  <a class="header__link" href="#portfolio"> Портфоліо </a>
+                  <a class="header__link" href="#portfolio">Портфоліо</a>
                 </li>
                 <li>
-                  <a class="header__link" href="#pricing"> Ціни </a>
+                  <a class="header__link" href="#pricing">Ціни</a>
                 </li>
                 <li>
                   <a class="header__link" href="#faq">Поширені запитання</a>
                 </li>
+
+                <li class="header__menu-contact">
+                  <span class="header__menu-caption"
+                    >Є ІДЕЯ? ДАВАЙТЕ ОБГОВОРИМО.</span
+                  >
+
+                  <a class="header__menu-phone" href="tel:+380634669018">
+                    +38 (063) 466 90 18 <span aria-hidden="true">↗</span>
+                  </a>
+
+                  <a
+                    class="header__menu-email"
+                    href="mailto:webisen.office@gmail.com"
+                  >
+                    webisen.office@gmail.com
+                  </a>
+                </li>
               </ul>
             </nav>
+
             <a
               class="header__logo"
               href="./index.html"
               aria-label="WEBISEN — головна сторінка"
-              ><span>WEB</span><span>ISEN</span></a
             >
+              <span>WEB</span><span>ISEN</span>
+            </a>
+
             <div class="header__contacts">
-              <a class="header__contact" href="mailto:support@webisen.com"
-                ><span>пошта:</span>support@webisen.com</a
-              >
-              <a class="header__contact" href="tel:+12456525345"
-                ><span>тел.:</span>+1 245 652 53 45</a
-              >
+              <a class="header__contact" href="mailto:webisen.office@gmail.com">
+                <span>пошта:</span>webisen.office@gmail.com
+              </a>
+
+              <a class="header__contact" href="tel:+380634669018">
+                <span>тел.:</span>+38 (063) 466 90 18
+              </a>
             </div>
+
             <button
               class="header__toggle"
+              type="button"
               aria-controls="main-navigation"
               aria-expanded="false"
               aria-label="Відкрити меню"
             >
-              <span></span><span></span>
+              <span></span>
+              <span></span>
             </button>
           </div>
         </header>
+
         <section class="hero" aria-label="Вітання">
           <div class="hero__heading">
             <h1 class="hero__title">
@@ -1273,7 +1331,8 @@
         <div class="footer__top">
           <div class="footer__contact">
             <p class="footer__label">Зв’язатися безпосередньо</p>
-            <a href="mailto:support@webisen.com">support@webisen.com</a
+            <a href="mailto:webisen.office@gmail.com"
+              >webisen.office@gmail.com</a
             ><img
               class="footer__map"
               src="./images/design/a5803.png"
@@ -1333,5 +1392,17 @@
       /></a>
     </dialog>
     <a class="back-top" href="#home" aria-label="Повернутися нагору">↑</a>
+
+    <div class="preloader" role="status" aria-label="Завантаження сторінки">
+      <div class="preloader__inner" aria-hidden="true">
+        <div class="preloader__logo"><span>WEB</span><span>ISEN</span></div>
+
+        <div class="preloader__track">
+          <span class="preloader__line"></span>
+        </div>
+
+        <span class="preloader__caption">САЙТИ, ЩО ПРИНОСЯТЬ ПРИБУТОК</span>
+      </div>
+    </div>
   </body>
 </html>
