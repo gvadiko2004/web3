@@ -7,24 +7,19 @@
     window.__webisenInitialized = true;
 
     const root = document.documentElement;
-    const $ = (selector, parent = document) =>
-      parent.querySelector(selector);
-    const $$ = (selector, parent = document) =>
-      [...parent.querySelectorAll(selector)];
+    const $ = (selector, parent = document) => parent.querySelector(selector);
+    const $$ = (selector, parent = document) => [
+      ...parent.querySelectorAll(selector),
+    ];
 
-    const reducedMotion = matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    );
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
     const mobile = matchMedia("(max-width: 1100px)");
-    const finePointer = matchMedia(
-      "(min-width: 701px) and (pointer: fine)"
-    );
+    const finePointer = matchMedia("(min-width: 701px) and (pointer: fine)");
 
     const clamp = (value, min = 0, max = 1) =>
       Math.min(max, Math.max(min, value));
 
-    const scrollBehavior = () =>
-      reducedMotion.matches ? "instant" : "smooth";
+    const scrollBehavior = () => (reducedMotion.matches ? "instant" : "smooth");
 
     function watchMedia(query, callback) {
       if (query.addEventListener) {
@@ -160,7 +155,7 @@
         toggle.setAttribute("aria-expanded", String(opened));
         toggle.setAttribute(
           "aria-label",
-          opened ? "Закрити меню" : "Відкрити меню"
+          opened ? "Закрити меню" : "Відкрити меню",
         );
 
         menu.inert = mobile.matches && !opened;
@@ -187,8 +182,7 @@
         }
       }
 
-      closeMenu = (restoreFocus = true) =>
-        setMenu(false, restoreFocus);
+      closeMenu = (restoreFocus = true) => setMenu(false, restoreFocus);
 
       function syncPosition() {
         const focusWasInside = menu.contains(document.activeElement);
@@ -236,7 +230,7 @@
 
         const focusable = $$(
           'a[href], button:not([disabled]), [tabindex="0"]',
-          menu
+          menu,
         ).filter((element) => element.getClientRects().length);
 
         const first = focusable[0];
@@ -304,10 +298,7 @@
         });
       });
 
-      $(".case-dialog__close", dialog)?.addEventListener(
-        "click",
-        closeProject
-      );
+      $(".case-dialog__close", dialog)?.addEventListener("click", closeProject);
 
       // Нажатие на фон, а не на содержимое диалога.
       let backdropPointerDown = false;
@@ -324,8 +315,7 @@
       }
 
       dialog.addEventListener("pointerdown", (event) => {
-        backdropPointerDown =
-          event.target === dialog && outsideDialog(event);
+        backdropPointerDown = event.target === dialog && outsideDialog(event);
       });
 
       dialog.addEventListener("click", (event) => {
@@ -363,7 +353,7 @@
 
         $(".service__toggle", service)?.setAttribute(
           "aria-expanded",
-          String(open)
+          String(open),
         );
 
         const body = $(".service__body", service);
@@ -380,14 +370,10 @@
 
         button.type = "button";
 
-        setService(
-          service,
-          service.classList.contains("service--open")
-        );
+        setService(service, service.classList.contains("service--open"));
 
         button.addEventListener("click", () => {
-          const shouldOpen =
-            !service.classList.contains("service--open");
+          const shouldOpen = !service.classList.contains("service--open");
 
           services.forEach((item) => {
             setService(item, item === service && shouldOpen);
@@ -443,7 +429,7 @@
     function scrollToSection(target) {
       const top = Math.max(
         0,
-        target.getBoundingClientRect().top + window.scrollY - 24
+        target.getBoundingClientRect().top + window.scrollY - 24,
       );
 
       window.scrollTo({
@@ -459,7 +445,7 @@
         target.addEventListener(
           "blur",
           () => target.removeAttribute("tabindex"),
-          { once: true }
+          { once: true },
         );
       }
 
@@ -530,23 +516,14 @@
       if (!figures.length) return;
 
       function updateControls() {
-        const max = Math.max(
-          0,
-          people.scrollWidth - people.clientWidth
-        );
+        const max = Math.max(0, people.scrollWidth - people.clientWidth);
 
         previous.disabled = people.scrollLeft <= 2;
         next.disabled = people.scrollLeft >= max - 2;
 
-        previous.setAttribute(
-          "aria-disabled",
-          String(previous.disabled)
-        );
+        previous.setAttribute("aria-disabled", String(previous.disabled));
 
-        next.setAttribute(
-          "aria-disabled",
-          String(next.disabled)
-        );
+        next.setAttribute("aria-disabled", String(next.disabled));
       }
 
       function move(direction) {
@@ -579,7 +556,7 @@
 
             figures.forEach((figure, index) => {
               const current = Math.abs(
-                figure.getBoundingClientRect().left - left
+                figure.getBoundingClientRect().left - left,
               );
 
               if (current < distance) {
@@ -588,11 +565,10 @@
               }
             });
 
-            status.textContent =
-              `Портрет ${nearest + 1} із ${figures.length}`;
+            status.textContent = `Портрет ${nearest + 1} із ${figures.length}`;
           }, 180);
         },
-        { passive: true }
+        { passive: true },
       );
 
       window.addEventListener("resize", updateControls);
@@ -683,10 +659,12 @@
           `&body=${encodeURIComponent(body)}`;
       });
 
-      $('textarea[name="message"]', contactForm || document)
-        ?.addEventListener("input", (event) => {
+      $('textarea[name="message"]', contactForm || document)?.addEventListener(
+        "input",
+        (event) => {
           event.target.setCustomValidity("");
-        });
+        },
+      );
     });
 
     /* ---------------- Появление блоков ---------------- */
@@ -700,10 +678,7 @@
         });
       }
 
-      if (
-        reducedMotion.matches ||
-        !("IntersectionObserver" in window)
-      ) {
+      if (reducedMotion.matches || !("IntersectionObserver" in window)) {
         showAll();
         return;
       }
@@ -720,7 +695,7 @@
         {
           threshold: 0,
           rootMargin: "0px 0px -24px 0px",
-        }
+        },
       );
 
       elements.forEach((element) => {
@@ -738,25 +713,24 @@
     /* ---------------- Анимация чисел ---------------- */
 
     run("counters", () => {
-      if (
-        reducedMotion.matches ||
-        !("IntersectionObserver" in window)
-      ) {
+      if (reducedMotion.matches || !("IntersectionObserver" in window)) {
         return;
       }
 
-      const containers = $$([
-        ".stat__title",
-        ".hero__about p",
-        ".metrics strong",
-        ".partners-card strong",
-        ".sprints__heading > span",
-        ".sprints__bar--active b",
-        ".price-card__tags li",
-        ".price-card__action strong",
-        ".review__content blockquote",
-        ".impact__card strong",
-      ].join(","));
+      const containers = $$(
+        [
+          ".stat__title",
+          ".hero__about p",
+          ".metrics strong",
+          ".partners-card strong",
+          ".sprints__heading > span",
+          ".sprints__bar--active b",
+          ".price-card__tags li",
+          ".price-card__action strong",
+          ".review__content blockquote",
+          ".impact__card strong",
+        ].join(","),
+      );
 
       function animateText(node) {
         const original = node.nodeValue;
@@ -788,19 +762,18 @@
                 ? "."
                 : null;
 
-            const decimals = separator
-              ? raw.split(separator)[1].length
-              : 0;
+            const decimals = separator ? raw.split(separator)[1].length : 0;
 
             const grouping = raw.match(/[ \u00a0]/)?.[0] || "";
             const value = Number(
-              raw.replace(/[ \u00a0]/g, "").replace(",", ".")
+              raw.replace(/[ \u00a0]/g, "").replace(",", "."),
             );
 
             if (!Number.isFinite(value)) return raw;
 
-            let [whole, fraction] =
-              (value * eased).toFixed(decimals).split(".");
+            let [whole, fraction] = (value * eased)
+              .toFixed(decimals)
+              .split(".");
 
             if (grouping) {
               whole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, grouping);
@@ -826,7 +799,7 @@
 
             const walker = document.createTreeWalker(
               entry.target,
-              NodeFilter.SHOW_TEXT
+              NodeFilter.SHOW_TEXT,
             );
 
             const nodes = [];
@@ -840,7 +813,7 @@
             nodes.forEach(animateText);
           });
         },
-        { threshold: 0.15 }
+        { threshold: 0.15 },
       );
 
       containers.forEach((element) => observer.observe(element));
@@ -851,11 +824,11 @@
     const headings = [];
 
     run("karaoke", () => {
-      $$(".mission h2, .section-title, .team__title, .custom__copy h3")
-        .forEach((heading) => {
+      $$(".mission h2, .section-title, .team__title, .custom__copy h3").forEach(
+        (heading) => {
           const walker = document.createTreeWalker(
             heading,
-            NodeFilter.SHOW_TEXT
+            NodeFilter.SHOW_TEXT,
           );
 
           const nodes = [];
@@ -902,7 +875,8 @@
             element: heading,
             words: $$(".karaoke-ink", heading),
           });
-        });
+        },
+      );
     });
 
     /* ---------------- Параллакс и кнопка вверх ---------------- */
@@ -933,10 +907,13 @@
       const height = window.innerHeight;
       const reduced = reducedMotion.matches;
 
-      backTop?.classList.toggle(
-        "back-top--visible",
-        window.scrollY > 500
-      );
+      const showFloatingActions = window.scrollY > 500;
+
+      document
+        .querySelector(".floating-actions")
+        ?.classList.toggle("floating-actions--visible", showFloatingActions);
+
+      backTop?.classList.toggle("back-top--visible", showFloatingActions);
 
       headings.forEach(({ element, words }) => {
         const rect = element.getBoundingClientRect();
@@ -950,10 +927,7 @@
             ? 1
             : clamp(progress * (words.length + 1) - index);
 
-          word.style.setProperty(
-            "--karaoke-progress",
-            value.toFixed(3)
-          );
+          word.style.setProperty("--karaoke-progress", value.toFixed(3));
         });
       });
 
@@ -965,20 +939,19 @@
 
         const rect = element.getBoundingClientRect();
         const previous =
-          parseFloat(element.style.getPropertyValue("--webisen-depth")) ||
-          0;
+          parseFloat(element.style.getPropertyValue("--webisen-depth")) || 0;
 
         // Вычитаем применённое смещение, чтобы не было обратной связи.
         const center = rect.top - previous + rect.height / 2;
         const distance = clamp(
           (height / 2 - center) / (height + rect.height),
           -0.5,
-          0.5
+          0.5,
         );
 
         element.style.setProperty(
           "--webisen-depth",
-          `${(distance * strength * 2).toFixed(1)}px`
+          `${(distance * strength * 2).toFixed(1)}px`,
         );
       });
     }
@@ -1054,3 +1027,5 @@
     init();
   }
 })();
+
+//

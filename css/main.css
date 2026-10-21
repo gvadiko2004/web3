@@ -3060,3 +3060,157 @@ html.lenis body {
     margin-right: 20px;
   }
 }
+
+/* ==========================================
+   WEBISEN / FLOATING ACTIONS — MOBILE SAFE
+========================================== */
+.floating-actions {
+  position: fixed;
+  z-index: 999;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(0, 20px, 0);
+  transition: opacity .35s ease, transform .35s ease, visibility .35s ease;
+}
+.floating-actions--visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+}
+.floating-actions .floating-actions__telegram {
+  position: relative;
+  display: block;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+}
+.floating-actions .floating-actions__button {
+  position: relative;
+  inset: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  box-sizing: border-box;
+  text-decoration: none;
+  transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+}
+.floating-actions .floating-actions__button svg {
+  display: block;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+}
+.floating-actions .floating-actions__button--telegram {
+  background: #2aabee;
+  color: #fff;
+  border: 1px solid #2aabee;
+  box-shadow: 0 6px 24px rgba(42,171,238,.30);
+}
+.floating-actions .floating-actions__button--telegram:hover {
+  background: #229ed9;
+  color: #fff;
+  transform: translateY(-3px);
+}
+.floating-actions .floating-actions__button--telegram::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(42,171,238,.4);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: telegram-pulse 3s ease-in-out infinite;
+}
+@keyframes telegram-pulse {
+  0%,100% {transform: scale(1); opacity:.55;}
+  50% {transform: scale(1.12); opacity:0;}
+}
+.floating-actions .back-top,
+.floating-actions .back-top.back-top--visible {
+  position: relative;
+  inset: auto;
+  width: 56px;
+  height: 56px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  border: 1px solid rgba(255,255,255,.23);
+  background: #191b20;
+  color: #e5f65f;
+}
+.floating-actions .back-top:hover {
+  background: #e5f65f;
+  color: #0d0e10;
+  transform: translateY(-3px);
+}
+/* Tooltip absolutely positioned: does not affect column width */
+.floating-actions .floating-actions__hint {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 13px);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 110px));
+  padding: 12px 14px;
+  border: 1px solid rgba(42,171,238,.3);
+  border-radius: 14px;
+  background: #191b20;
+  color: #fff;
+  font: 600 12px/1.45 var(--font-body, sans-serif);
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: break-word;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(12px,-50%,0) scale(.97);
+  transform-origin: right center;
+  transition: opacity .35s ease, transform .35s ease, visibility .35s;
+}
+.floating-actions .floating-actions__hint.is-visible,
+.floating-actions .floating-actions__telegram:hover .floating-actions__hint,
+.floating-actions .floating-actions__telegram:focus-within .floating-actions__hint {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0,-50%,0) scale(1);
+}
+.floating-actions__hint-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  background: #2aabee;
+  border-radius: 50%;
+}
+@media (max-width: 600px) {
+  .floating-actions {right: 16px; bottom: 16px; width: 48px; gap: 10px;}
+  .floating-actions .floating-actions__telegram {width: 48px; height: 48px; flex-basis: 48px;}
+  .floating-actions .floating-actions__button,
+  .floating-actions .back-top,
+  .floating-actions .back-top.back-top--visible {width: 48px; height: 48px; flex-basis: 48px;}
+  .floating-actions .floating-actions__hint {max-width: calc(100vw - 96px); padding: 10px 12px; font-size: 11px;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .floating-actions, .floating-actions * {transition: none !important; animation: none !important;}
+}
