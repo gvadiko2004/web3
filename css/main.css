@@ -3022,7 +3022,41 @@ html.lenis body {
     margin-right: 0;
   }
 
-  .back-top--visible {
-    right: 36px;
+ 
+
+  .reveal-ready.is-visible {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .portfolio {
+    margin-top: 40px;
+  }
+
+  .wrapper,
+  section {
+    overflow: hidden;
+  }
+
+  .intro {
+    border-radius: 0;
+  }
+
+  .mission {
+    margin: 0 20px !important;
+  }
+
+  .about {
+    margin-top: 40px !important;
+  }
+
+  .services {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .reviews .section-head {
+    margin-left: 20px;
+    margin-right: 20px;
   }
 }
